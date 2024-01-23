@@ -1,42 +1,54 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
+    import type { TimerData, TimerInterval } from "./timer";
 
-    export var id: string;
-    var is_running: boolean = false;
-    var start_time = 0;
-    var current_time = 0;
-    export var name = "test";
+    export var timer: TimerData;
     export var remove_timer: (id: string) => void;
 
-    var secs_diff: number = 0;
-    var mins_diff: number = 0;
-    var hours_diff: number = 0;
-    var diff: number = 0;
+    var is_running: boolean = false;
+    var display_time: string = "00:00:00";
     var is_editing_name: boolean = false;
     var name_input: HTMLInputElement;
     var display_id: string;
+    var currentInterval: TimerInterval;
 
     function update_timer() {
-        current_time = Date.now();
-        diff = current_time - start_time;
-        diff = Math.floor(diff / 1000);
-        secs_diff = diff % 60;
-        diff = Math.floor(diff / 60);
-        mins_diff = diff % 60;
-        diff = Math.floor(diff / 60);
-        hours_diff = diff % 24;
-        diff = Math.floor(diff / 24);
-        console.log("running");
+        timer.currentTime = Date.now();
+        var diff = timer.currentTime - currentInterval.startTime;
+        display_time = get_display_time_from_unix_time(diff);
+    }
+
+    function get_display_time_from_unix_time(time: number): string {
+        var formatted_time = "";
+        time = Math.floor(time / 1000);
+        var secs = time % 60;
+        time = Math.floor(time / 60);
+        var mins = time % 60;
+        time = Math.floor(time / 60);
+        var hours = time % 24;
+        time = Math.floor(time / 24);
+        formatted_time = `${hours < 10 ? "0" + hours.toString() : hours}:${
+            mins < 10 ? "0" + mins.toString() : mins
+        }:${secs < 10 ? "0" + secs.toString() : secs}`;
+        return formatted_time;
     }
 
     function start_timer() {
-        start_time = Date.now();
+        var ti: TimerInterval = {
+            startTime: Date.now(),
+            stopTime: 0,
+        };
+        timer.timerIntervals.push(ti);
+        currentInterval = ti;
+        if (timer.startTime == 0) timer.startTime = ti.startTime;
         is_running = true;
         interval = setInterval(update_timer, 1000);
         console.log("starting");
     }
 
     function stop_timer() {
+        timer.timerIntervals[timer.timerIntervals.length - 1].stopTime =
+            Date.now();
         is_running = false;
     }
 
@@ -46,7 +58,7 @@
     }
 
     onMount(() => {
-        display_id = id.substring(0, 4) + "...";
+        display_id = timer.id.substring(0, 4) + "...";
     });
 
     onDestroy(() => {
@@ -60,13 +72,7 @@
 <div class="timercontainer">
     <p style="font-size: smaller;"><em>{display_id}</em></p>
     <h1>
-        {hours_diff < 10
-            ? "0" + hours_diff.toString()
-            : hours_diff}:{mins_diff < 10
-            ? "0" + mins_diff.toString()
-            : mins_diff}:{secs_diff < 10
-            ? "0" + secs_diff.toString()
-            : secs_diff}
+        {display_time}
     </h1>
     <div
         on:dblclick={() => {
@@ -77,7 +83,7 @@
         {#if is_editing_name}
             <input
                 class="name_edit"
-                bind:value={name}
+                bind:value={timer.name}
                 bind:this={name_input}
                 on:keypress={(event) => {
                     if (event.key === "Enter") {
@@ -85,7 +91,7 @@
                     }
                 }} />
         {:else}
-            <p>{name}</p>
+            <p>{timer.name}</p>
         {/if}
     </div>
     <div>
@@ -104,8 +110,8 @@
             on:click={() => {
                 var res = window.confirm("Your are deleting:\n " + name);
                 if (res) {
-                    console.log("TC", id);
-                    remove_timer(id);
+                    console.log("TC", timer.id);
+                    remove_timer(timer.id);
                 }
             }}>X</button>
     </div>
