@@ -2,31 +2,26 @@
     import { onMount } from "svelte";
     import TimerContainer from "./TimerContainer.svelte";
     import type { TimerData } from "./timer";
+    var innerWidth = 0;
     var timers: Array<TimerData> = [];
     var birdnames: Array<string> = [];
     function add_new_timer() {
         var timer: TimerData = {
             id: crypto.randomUUID(),
-            startTime: 0,
             currentTime: 0,
-            endTime: 0,
-            totalTime: 0,
             name: getbird(),
             isRunning: false,
             timerIntervals: [],
         };
         timers = [...timers, timer];
-        console.log(timers);
     }
     function getbird(): string {
         return birdnames[Math.floor(Math.random() * birdnames.length)];
     }
     function remove_timer(id: string): void {
         var remove_index = timers.findIndex((i) => i.id === id);
-        console.log(remove_index);
         timers.splice(remove_index, 1);
         timers = [...timers];
-        console.log("app", id);
     }
     onMount(async () => {
         var res = await fetch("/names.txt");
@@ -38,11 +33,12 @@
     });
 </script>
 
+<svelte:window bind:innerWidth />
 <div class="container">
     <button class="add_btn" on:click={add_new_timer}>Add</button>
     <div class="grid">
         {#each timers as timer}
-            <TimerContainer {timer} {remove_timer} />
+            <TimerContainer {timer} {remove_timer} {innerWidth} />
         {/each}
     </div>
 </div>

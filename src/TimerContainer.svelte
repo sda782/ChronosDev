@@ -1,36 +1,27 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
     import type { TimerData, TimerInterval } from "./timer";
+    import {
+        get_display_time_from_unix_time,
+        display_time_to_string,
+    } from "./render";
 
+    export var innerWidth: number;
     export var timer: TimerData;
     export var remove_timer: (id: string) => void;
 
-    var is_running: boolean = false;
+    var show_info_box = false;
     var display_time: string = "00:00:00";
     var is_editing_name: boolean = false;
+    var show_left: boolean = false;
     var name_input: HTMLInputElement;
-    var display_id: string;
     var currentInterval: TimerInterval;
 
     function update_timer() {
         timer.currentTime = Date.now();
-        var diff = timer.currentTime - currentInterval.startTime;
-        display_time = get_display_time_from_unix_time(diff);
-    }
-
-    function get_display_time_from_unix_time(time: number): string {
-        var formatted_time = "";
-        time = Math.floor(time / 1000);
-        var secs = time % 60;
-        time = Math.floor(time / 60);
-        var mins = time % 60;
-        time = Math.floor(time / 60);
-        var hours = time % 24;
-        time = Math.floor(time / 24);
-        formatted_time = `${hours < 10 ? "0" + hours.toString() : hours}:${
-            mins < 10 ? "0" + mins.toString() : mins
-        }:${secs < 10 ? "0" + secs.toString() : secs}`;
-        return formatted_time;
+        display_time = get_display_time_from_unix_time(
+            timer.currentTime - currentInterval.startTime,
+        );
     }
 
     function start_timer() {
@@ -40,42 +31,52 @@
         };
         timer.timerIntervals.push(ti);
         currentInterval = ti;
-        if (timer.startTime == 0) timer.startTime = ti.startTime;
-        is_running = true;
+        timer.isRunning = true;
         interval = setInterval(update_timer, 1000);
-        console.log("starting");
     }
 
     function stop_timer() {
         timer.timerIntervals[timer.timerIntervals.length - 1].stopTime =
             Date.now();
-        is_running = false;
+        timer.isRunning = false;
     }
 
     function toggle_name_edit() {
         is_editing_name = !is_editing_name;
-        console.log(is_editing_name);
     }
 
-    onMount(() => {
-        display_id = timer.id.substring(0, 4) + "...";
-    });
+    function open_info_box(e: MouseEvent): void {
+        if (e.clientX > innerWidth / 2) {
+            show_left = true;
+        } else {
+            show_left = false;
+        }
+        show_info_box = true;
+    }
+
+    function close_info_box(): void {
+        show_info_box = false;
+    }
 
     onDestroy(() => {
         clearInterval(interval);
     });
 
     let interval = setInterval(update_timer, 1000);
-    $: if (!is_running) clearInterval(interval);
+    $: if (!timer.isRunning) clearInterval(interval);
 </script>
 
-<div class="timercontainer">
-    <p style="font-size: smaller;"><em>{display_id}</em></p>
+<div
+    class="container"
+    on:mouseenter={(e) => open_info_box(e)}
+    on:mouseleave={() => close_info_box()}
+    role="contentinfo">
     <h1>
         {display_time}
     </h1>
     <div
-        on:dblclick={() => {
+        on:dblclick={(e) => {
+            e.preventDefault();
             if (!is_editing_name) toggle_name_edit();
         }}
         role="button"
@@ -95,7 +96,7 @@
         {/if}
     </div>
     <div>
-        {#if !is_running}
+        {#if !timer.isRunning}
             <button class="btn" on:click={start_timer}><b>START</b></button>
         {:else}
             <button
@@ -108,30 +109,73 @@
     <div class="floating_button">
         <button
             on:click={() => {
-                var res = window.confirm("Your are deleting:\n " + name);
+                var res = window.confirm("Your are deleting:\n " + timer.name);
                 if (res) {
-                    console.log("TC", timer.id);
                     remove_timer(timer.id);
                 }
             }}>X</button>
     </div>
+    {#if show_info_box}
+        <div
+            class="info_box container {show_left
+                ? 'info_box_left'
+                : 'info_box_right'} ">
+            <h2><em>Intervals</em></h2>
+            <table class="log_table">
+                <tbody>
+                    {#each timer.timerIntervals as time_int}
+                        <tr>
+                            <td>
+                                {display_time_to_string(time_int.startTime)}
+                            </td>
+                            <td>
+                                {#if time_int.stopTime}
+                                    {display_time_to_string(time_int.stopTime)}
+                                {/if}
+                            </td>
+                            <td>
+                                {#if time_int.stopTime}
+                                    {get_display_time_from_unix_time(
+                                        time_int.stopTime - time_int.startTime,
+                                    )}
+                                {/if}
+                            </td>
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
+    {/if}
 </div>
 
 <style>
-    .timercontainer {
+    .info_box_left {
+        right: calc(20em - 50px);
+    }
+    .info_box_right {
+        right: calc(-20em - 25px);
+    }
+    .info_box {
+        position: absolute;
+        top: 10px;
+        padding: 0px 20px 0px 20px;
+    }
+    .container {
         border-radius: 10px;
         max-width: 20em;
         min-width: 20em;
-        max-height: 15em;
         text-align: center;
         padding-bottom: 10px;
         margin: 10px;
         background: linear-gradient(
             to bottom right,
             var(--primary),
-            var(--secondary-dark)
+            var(--accent-dark)
         );
         filter: drop-shadow(0 0 var(--dropshadow-size) var(--accent-dark));
+    }
+    .container:hover {
+        z-index: 100;
     }
     .btn {
         min-width: 80%;
@@ -139,6 +183,7 @@
         border-radius: 5px;
         background: var(--primary);
         padding: 7px;
+        margin-bottom: 1em;
     }
     .name_edit {
         text-align: center;
@@ -160,5 +205,8 @@
         border: none;
         border-radius: 50%;
         filter: drop-shadow(0 0 var(--dropshadow-size) var(--accent-dark));
+    }
+    .log_table {
+        width: 100%;
     }
 </style>
