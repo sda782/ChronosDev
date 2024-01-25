@@ -1,8 +1,12 @@
 export type TimerData = {
     id: string,
-    startTime: number
+    name: string
     currentTime: number,
-    endTime: number,
-    latestStartTime: number,
-    totalTime: number
+    isRunning: boolean,
+    timerIntervals: Array<TimerInterval>
+}
+
+export type TimerInterval = {
+    startTime: number,
+    stopTime: number
 }

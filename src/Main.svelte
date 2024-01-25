@@ -1,23 +1,27 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import TimerContainer from "./TimerContainer.svelte";
-    var timers: Array<string> = [];
+    import type { TimerData } from "./timer";
+    var innerWidth = 0;
+    var timers: Array<TimerData> = [];
     var birdnames: Array<string> = [];
     function add_new_timer() {
-        timers = [...timers, crypto.randomUUID()];
-        console.log(timers);
+        var timer: TimerData = {
+            id: crypto.randomUUID(),
+            currentTime: 0,
+            name: getbird(),
+            isRunning: false,
+            timerIntervals: [],
+        };
+        timers = [...timers, timer];
     }
     function getbird(): string {
         return birdnames[Math.floor(Math.random() * birdnames.length)];
     }
     function remove_timer(id: string): void {
-        console.log("app", id);
-        const index = timers.indexOf(id, 0);
-        if (index > -1) {
-            timers.splice(index, 1);
-        }
+        var remove_index = timers.findIndex((i) => i.id === id);
+        timers.splice(remove_index, 1);
         timers = [...timers];
-        console.log(timers);
     }
     onMount(async () => {
         var res = await fetch("/names.txt");
@@ -29,11 +33,12 @@
     });
 </script>
 
+<svelte:window bind:innerWidth />
 <div class="container">
     <button class="add_btn" on:click={add_new_timer}>Add</button>
     <div class="grid">
         {#each timers as timer}
-            <TimerContainer id={timer} name={getbird()} {remove_timer} />
+            <TimerContainer {timer} {remove_timer} {innerWidth} />
         {/each}
     </div>
 </div>
