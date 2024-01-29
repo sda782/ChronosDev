@@ -1,6 +1,10 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import type { TimerData, TimerInterval } from "./timer";
+    import {
+        calc_total_duration,
+        type TimerData,
+        type TimerInterval,
+    } from "./timer";
     import {
         get_display_time_from_unix_time,
         display_time_to_string,
@@ -46,11 +50,7 @@
     }
 
     function open_info_box(e: MouseEvent): void {
-        if (e.clientX > innerWidth / 2) {
-            show_left = true;
-        } else {
-            show_left = false;
-        }
+        show_left = e.clientX > innerWidth / 2;
         show_info_box = true;
     }
 
@@ -123,6 +123,11 @@
             <h2><em>Intervals</em></h2>
             <table class="log_table">
                 <tbody>
+                    <tr>
+                        <th>start</th>
+                        <th>end</th>
+                        <th>time</th>
+                    </tr>
                     {#each timer.timerIntervals as time_int}
                         <tr>
                             <td>
@@ -142,6 +147,14 @@
                             </td>
                         </tr>
                     {/each}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td
+                            >{get_display_time_from_unix_time(
+                                calc_total_duration(timer.timerIntervals),
+                            )}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -199,10 +212,10 @@
         right: 7px;
     }
     .floating_button > button {
-        background-color: var(--accent-dark);
+        background-color: transparent;
         width: 2em;
         height: 2em;
-        border: none;
+        border: 1px solid white;
         border-radius: 50%;
         filter: drop-shadow(0 0 var(--dropshadow-size) var(--accent-dark));
     }

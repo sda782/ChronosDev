@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Raleway', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -9,10 +9,16 @@
   --dropshadow-size: 0.3em;
   color-scheme: dark;
   color: #e4f7e6;
-  background-color: #0e1a10;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-image: url("./fern.jpg");
+  background-color: #425a50;
+  background-size: cover;
+  background-blend-mode: overlay
 }
