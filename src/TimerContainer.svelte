@@ -9,6 +9,7 @@
         get_display_time_from_unix_time,
         display_time_to_string,
     } from "./render";
+    import { storage_timers } from "./storage_manager";
 
     export var innerWidth: number;
     export var timer: TimerData;
@@ -16,6 +17,7 @@
 
     var show_info_box = false;
     var display_time: string = "00:00:00";
+    var display_total_time: string = "00:00:00";
     var is_editing_name: boolean = false;
     var show_left: boolean = false;
     var name_input: HTMLInputElement;
@@ -37,12 +39,15 @@
         currentInterval = ti;
         timer.isRunning = true;
         interval = setInterval(update_timer, 1000);
+        $storage_timers = [...$storage_timers];
     }
 
     function stop_timer() {
         timer.timerIntervals[timer.timerIntervals.length - 1].stopTime =
             Date.now();
         timer.isRunning = false;
+        $storage_timers = [...$storage_timers];
+        update_total_time();
     }
 
     function toggle_name_edit() {
@@ -58,6 +63,19 @@
         show_info_box = false;
     }
 
+    function update_total_time(): void {
+        display_total_time = get_display_time_from_unix_time(
+            calc_total_duration(timer.timerIntervals),
+        );
+    }
+
+    onMount(() => {
+        if (timer.isRunning)
+            currentInterval =
+                timer.timerIntervals[timer.timerIntervals.length - 1];
+        update_total_time();
+    });
+
     onDestroy(() => {
         clearInterval(interval);
     });
@@ -66,14 +84,15 @@
     $: if (!timer.isRunning) clearInterval(interval);
 </script>
 
-<div
-    class="container"
-    on:mouseenter={(e) => open_info_box(e)}
-    on:mouseleave={() => close_info_box()}
-    role="contentinfo">
-    <h1>
+<div class="container" role="contentinfo">
+    <!--    TIMERS DISPLAY    -->
+    <h1 style="margin-bottom: 5px;">
         {display_time}
     </h1>
+    <h4 style="margin:0;">
+        {display_total_time}
+    </h4>
+    <!--    NAME LABEL    -->
     <div
         on:dblclick={(e) => {
             e.preventDefault();
@@ -95,17 +114,20 @@
             <p>{timer.name}</p>
         {/if}
     </div>
-    <div>
-        {#if !timer.isRunning}
-            <button class="btn" on:click={start_timer}><b>START</b></button>
-        {:else}
-            <button
-                class="btn"
-                on:click={stop_timer}
-                style="background-color: var(--accent-dark);"
-                ><b>STOP</b></button>
-        {/if}
-    </div>
+
+    <!--    BUTTONS    -->
+    {#if !timer.isRunning}
+        <button class="btn" on:click={start_timer}><b>start</b></button>
+    {:else}
+        <button
+            class="btn"
+            on:click={stop_timer}
+            style="background-color: var(--accent-dark);"><b>stop</b></button>
+    {/if}
+    <button
+        class="btn"
+        on:mouseenter={(e) => open_info_box(e)}
+        on:mouseleave={() => close_info_box()}><b>show more</b></button>
     <div class="floating_button">
         <button
             on:click={() => {
@@ -115,6 +137,7 @@
                 }
             }}>X</button>
     </div>
+    <!--    INFO BOX    -->
     {#if show_info_box}
         <div
             class="info_box container {show_left
@@ -150,10 +173,7 @@
                     <tr>
                         <td></td>
                         <td></td>
-                        <td
-                            >{get_display_time_from_unix_time(
-                                calc_total_duration(timer.timerIntervals),
-                            )}</td>
+                        <td>{display_total_time}</td>
                     </tr>
                 </tbody>
             </table>
@@ -196,7 +216,7 @@
         border-radius: 5px;
         background: var(--primary);
         padding: 7px;
-        margin-bottom: 1em;
+        margin-bottom: 0.5em;
     }
     .name_edit {
         text-align: center;
@@ -212,10 +232,11 @@
         right: 7px;
     }
     .floating_button > button {
-        background-color: transparent;
+        background-color: var(--primary);
+        color: white;
         width: 2em;
         height: 2em;
-        border: 1px solid white;
+        border: none;
         border-radius: 50%;
         filter: drop-shadow(0 0 var(--dropshadow-size) var(--accent-dark));
     }
