@@ -14,6 +14,7 @@
     export var innerWidth: number;
     export var timer: TimerData;
     export var remove_timer: (id: string) => void;
+    export var set_fullscreen: (timer: TimerData) => void;
 
     var show_info_box = false;
     var display_time: string = "00:00:00";
@@ -124,10 +125,17 @@
             on:click={stop_timer}
             style="background-color: var(--accent-dark);"><b>stop</b></button>
     {/if}
-    <button
-        class="btn"
-        on:mouseenter={(e) => open_info_box(e)}
-        on:mouseleave={() => close_info_box()}><b>show more</b></button>
+    <div>
+        <button
+            class="btn"
+            on:mouseenter={(e) => open_info_box(e)}
+            on:mouseleave={() => close_info_box()}><b>show more</b></button>
+        <button
+            class="btn"
+            on:click={() => {
+                set_fullscreen(timer);
+            }}><b>fullscreen</b></button>
+    </div>
     <div class="floating_button">
         <button
             on:click={() => {

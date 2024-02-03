@@ -1,10 +1,13 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import TimerContainer from "./TimerContainer.svelte";
+    import FullscreenTimer from "./FullscreenTimer.svelte";
     import type { TimerData } from "./timer";
     import { storage_timers } from "./storage_manager";
+
     var innerWidth = 0;
     var birdnames: Array<string> = [];
+    var current_timer: TimerData;
     function add_new_timer() {
         var timer: TimerData = {
             id: crypto.randomUUID(),
@@ -23,6 +26,10 @@
         $storage_timers.splice(remove_index, 1);
         $storage_timers = [...$storage_timers];
     }
+
+    function set_fullscreen(timer: TimerData): void {
+        current_timer = timer;
+    }
     onMount(async () => {
         var res = await fetch("/names.txt");
         var text = await res.text();
@@ -35,12 +42,20 @@
 
 <svelte:window bind:innerWidth />
 <div class="container">
-    <button class="add_btn" on:click={add_new_timer}>add</button>
-    <div class="grid">
-        {#each $storage_timers as timer}
-            <TimerContainer {timer} {remove_timer} {innerWidth} />
-        {/each}
-    </div>
+    {#if current_timer}
+        <FullscreenTimer bind:current_timer />
+    {:else}
+        <button class="add_btn" on:click={add_new_timer}>add</button>
+        <div class="grid">
+            {#each $storage_timers as timer}
+                <TimerContainer
+                    {timer}
+                    {remove_timer}
+                    {innerWidth}
+                    {set_fullscreen} />
+            {/each}
+        </div>
+    {/if}
 </div>
 
 <style>
