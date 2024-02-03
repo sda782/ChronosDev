@@ -4,7 +4,7 @@
 
 <Main />
 <div class="footer">
-    <p><em>Fern created by Aevum - 2024</em></p>
+    <p style="font-size: smaller;"><em>Fern created by Aevum - 2024</em></p>
 </div>
 
 <style>

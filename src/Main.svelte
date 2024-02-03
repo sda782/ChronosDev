@@ -2,8 +2,8 @@
     import { onMount } from "svelte";
     import TimerContainer from "./TimerContainer.svelte";
     import type { TimerData } from "./timer";
+    import { storage_timers } from "./storage_manager";
     var innerWidth = 0;
-    var timers: Array<TimerData> = [];
     var birdnames: Array<string> = [];
     function add_new_timer() {
         var timer: TimerData = {
@@ -13,21 +13,21 @@
             isRunning: false,
             timerIntervals: [],
         };
-        timers = [...timers, timer];
+        $storage_timers = [...$storage_timers, timer];
     }
     function getbird(): string {
         return birdnames[Math.floor(Math.random() * birdnames.length)];
     }
     function remove_timer(id: string): void {
-        var remove_index = timers.findIndex((i) => i.id === id);
-        timers.splice(remove_index, 1);
-        timers = [...timers];
+        var remove_index = $storage_timers.findIndex((i) => i.id === id);
+        $storage_timers.splice(remove_index, 1);
+        $storage_timers = [...$storage_timers];
     }
     onMount(async () => {
         var res = await fetch("/names.txt");
         var text = await res.text();
         birdnames = [...text.split("\n")];
-        if (timers.length <= 0) {
+        if ($storage_timers.length <= 0) {
             add_new_timer();
         }
     });
@@ -35,9 +35,9 @@
 
 <svelte:window bind:innerWidth />
 <div class="container">
-    <button class="add_btn" on:click={add_new_timer}>Add</button>
+    <button class="add_btn" on:click={add_new_timer}>add</button>
     <div class="grid">
-        {#each timers as timer}
+        {#each $storage_timers as timer}
             <TimerContainer {timer} {remove_timer} {innerWidth} />
         {/each}
     </div>

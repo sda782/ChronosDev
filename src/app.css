@@ -1,24 +1,27 @@
 :root {
-  font-family: 'Raleway', sans-serif;
+  /* font-family: 'Raleway', sans-serif; */
+  font-family: 'Bitter';
   line-height: 1.5;
-  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 
-  --primary: #45c853;
-  --secondary-dark: #21596e;
-  --accent-dark: #2b5891;
+  --primary: #013220;
+  --secondary-dark: #8a9a5b;
+  --accent-dark: #355e3b;
+  --primary_old: #45c853;
+  --secondary-dark_old: #21596e;
+  --accent-dark_old: #2b5891;
   --dropshadow-size: 0.3em;
   color-scheme: dark;
   color: #e4f7e6;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background-image: url("./fern.jpg");
+  background: url("./fern.jpg") no-repeat center center fixed;
   background-color: #425a50;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
   background-size: cover;
   background-blend-mode: overlay
 }
