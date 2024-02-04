@@ -14,14 +14,12 @@
     export var innerWidth: number;
     export var timer: TimerData;
     export var remove_timer: (id: string) => void;
-    export var set_fullscreen: (timer: TimerData) => void;
 
     var show_info_box = false;
     var display_time: string = "00:00:00";
     var display_total_time: string = "00:00:00";
     var is_editing_name: boolean = false;
     var show_left: boolean = false;
-    var name_input: HTMLInputElement;
     var currentInterval: TimerInterval;
 
     function update_timer() {
@@ -105,7 +103,6 @@
             <input
                 class="name_edit"
                 bind:value={timer.name}
-                bind:this={name_input}
                 on:keypress={(event) => {
                     if (event.key === "Enter") {
                         toggle_name_edit();
@@ -130,11 +127,6 @@
             class="btn"
             on:mouseenter={(e) => open_info_box(e)}
             on:mouseleave={() => close_info_box()}><b>show more</b></button>
-        <button
-            class="btn"
-            on:click={() => {
-                set_fullscreen(timer);
-            }}><b>fullscreen</b></button>
     </div>
     <div class="floating_button">
         <button
@@ -143,7 +135,12 @@
                 if (res) {
                     remove_timer(timer.id);
                 }
-            }}>X</button>
+            }}
+            ><img
+                width="15px"
+                height="15px"
+                src="./x.png"
+                alt="remove timer" /></button>
     </div>
     <!--    INFO BOX    -->
     {#if show_info_box}
@@ -229,10 +226,14 @@
     .name_edit {
         text-align: center;
         width: 80%;
+        margin-top: 16px;
         margin-bottom: 16px;
         background: transparent;
         border: 1px solid white;
         border-radius: 5px;
+    }
+    .name_edit:focus {
+        outline: none;
     }
     .floating_button {
         position: absolute;
@@ -240,6 +241,7 @@
         right: 7px;
     }
     .floating_button > button {
+        padding-top: 3px;
         background-color: var(--primary);
         color: white;
         width: 2em;
