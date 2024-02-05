@@ -32,7 +32,7 @@
     }
 
     onMount(async () => {
-        var res = await fetch("/names.txt");
+        var res = await fetch("./names.txt");
         var text = await res.text();
         birdnames = [...text.split("\n")];
         if ($storage_timers.length <= 0) {
