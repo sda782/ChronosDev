@@ -47,6 +47,7 @@
 <div class="container">
     <button class="menu_btn" on:click={add_new_timer}>add</button>
     <button class="menu_btn" on:click={clear_timers}>clear</button>
+    <span style="font-size: smaller;"><em>Fern - Aevum - 2024</em></span>
     <div class="grid">
         {#each [...$storage_timers].reverse() as timer}
             <TimerContainer {timer} {remove_timer} {innerWidth} />
@@ -73,9 +74,9 @@
         max-width: 90vw;
         margin-left: 5vw;
         margin-right: 5vw;
-        justify-content: center;
     }
     .grid {
+        justify-content: center;
         margin-top: 25px;
         display: flex;
         flex-wrap: wrap;
