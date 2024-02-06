@@ -14,6 +14,7 @@
             name: getbird(),
             isRunning: false,
             timerIntervals: [],
+            visible: true,
         };
         $storage_timers = [...$storage_timers, timer];
     }
@@ -38,6 +39,7 @@
         if ($storage_timers.length <= 0) {
             add_new_timer();
         }
+        console.log($storage_timers);
     });
 </script>
 
@@ -46,7 +48,7 @@
     <button class="menu_btn" on:click={add_new_timer}>add</button>
     <button class="menu_btn" on:click={clear_timers}>clear</button>
     <div class="grid">
-        {#each $storage_timers as timer}
+        {#each [...$storage_timers].reverse() as timer}
             <TimerContainer {timer} {remove_timer} {innerWidth} />
         {/each}
     </div>

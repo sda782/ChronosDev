@@ -3,7 +3,8 @@ export type TimerData = {
     name: string
     currentTime: number,
     isRunning: boolean,
-    timerIntervals: Array<TimerInterval>
+    timerIntervals: Array<TimerInterval>,
+    visible: boolean
 }
 
 export type TimerInterval = {

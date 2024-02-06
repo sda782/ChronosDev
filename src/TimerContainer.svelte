@@ -69,9 +69,10 @@
     }
 
     onMount(() => {
-        if (timer.isRunning)
+        if (timer.isRunning) {
             currentInterval =
                 timer.timerIntervals[timer.timerIntervals.length - 1];
+        }
         update_total_time();
     });
 
@@ -83,7 +84,7 @@
     $: if (!timer.isRunning) clearInterval(interval);
 </script>
 
-<div class="container" role="contentinfo">
+<div class="container {timer.visible ? '' : 'inactive'}">
     <!--    TIMERS DISPLAY    -->
     <h1 style="margin-bottom: 5px;">
         {display_time}
@@ -141,6 +142,17 @@
                 height="15px"
                 src="./x.png"
                 alt="remove timer" /></button>
+        <button
+            on:click={() => {
+                timer.visible = !timer.visible;
+                console.log(timer.visible);
+                $storage_timers = [...$storage_timers];
+            }}
+            ><img
+                width="15px"
+                height="15px"
+                src="./eye.png"
+                alt="remove timer" /></button>
     </div>
     <!--    INFO BOX    -->
     {#if show_info_box}
@@ -187,6 +199,9 @@
 </div>
 
 <style>
+    .inactive {
+        opacity: 0.2;
+    }
     .info_box_left {
         right: calc(20em - 50px);
     }
