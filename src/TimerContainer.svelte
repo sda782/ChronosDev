@@ -130,7 +130,7 @@
             on:mouseleave={() => close_info_box()}><b>show more</b></button>
     </div>
     <div class="floating_button">
-        <button
+        <!-- <button
             on:click={() => {
                 var res = window.confirm("Your are deleting:\n " + timer.name);
                 if (res) {
@@ -141,7 +141,7 @@
                 width="15px"
                 height="15px"
                 src="./x.png"
-                alt="remove timer" /></button>
+                alt="remove timer" /></button> -->
         <button
             on:click={() => {
                 timer.visible = !timer.visible;
@@ -200,7 +200,7 @@
 
 <style>
     .inactive {
-        opacity: 0.2;
+        opacity: 0.5;
     }
     .info_box_left {
         right: calc(20em - 50px);

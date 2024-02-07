@@ -49,7 +49,7 @@
     <button class="menu_btn" on:click={clear_timers}>clear</button>
     <span style="font-size: smaller;"><em>Fern - Aevum - 2024</em></span>
     <div class="grid">
-        {#each [...$storage_timers].reverse() as timer}
+        {#each $storage_timers as timer}
             <TimerContainer {timer} {remove_timer} {innerWidth} />
         {/each}
     </div>
