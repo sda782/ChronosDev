@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import TimerContainer from "./TimerContainer.svelte";
+    import Globalsearch from "./Globalsearch.svelte";
     import type { TimerData } from "./timer";
     import { storage_timers } from "./storage_manager";
 
@@ -45,6 +46,7 @@
 
 <svelte:window bind:innerWidth />
 <div class="container">
+    <Globalsearch></Globalsearch>
     <button class="menu_btn" on:click={add_new_timer}>add</button>
     <button class="menu_btn" on:click={clear_timers}>clear</button>
     <span style="font-size: smaller;"><em>Fern - Aevum - 2024</em></span>
